@@ -320,7 +320,7 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
                 } else {
                     // Create a brand new client
                     log.trace("Creating new OAuth client with key " + clientKey);
-                    client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS);
+                    client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS,OAuthClient.ScopeType.INTERNAL_SERVICES);
                     client.setCredentials(clientId, clientSecret);
                     client.setTokenEndpoint(tokenEndpoint);
                     client.setValidateEndpoint(validateEndpoint);
