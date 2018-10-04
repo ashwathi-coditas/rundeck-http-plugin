@@ -27,16 +27,14 @@ import java.util.List;
  * Currently this only supports the CLIENT_CREDENTIALS grant type.
  */
 public class OAuthClient {
-    private static final Log log = LogFactory.getLog(OAuthClient.class);
+    protected static final Log log = LogFactory.getLog(OAuthClient.class);
 
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
     public static final String FIELD_GRANT_TYPE = "grant_type";
     public static final String FIELD_ACCESS_TOKEN = "access_token";
-    public static final String FIELD_SCOPE = "scope";
-    public static final String FIELD_CLIENT_ID = "client_id";
-    public static final String FIELD_CLIENT_SECRET = "client_secret";
+
 
     public static final Integer STATUS_SUCCESS = 200;
     public static final Integer STATUS_AUTHORIZATION_REQUIRED = 401;
@@ -45,9 +43,6 @@ public class OAuthClient {
         CLIENT_CREDENTIALS
     }
 
-    public enum ScopeType {
-        INTERNAL_SERVICES
-    }
 
     public static class OAuthException extends Exception {
         public OAuthException(String message) {
@@ -62,7 +57,6 @@ public class OAuthClient {
     String clientSecret;
 
     GrantType grantType;
-    ScopeType scopeType;
 
     String tokenEndpoint;
     String validateEndpoint;
@@ -113,22 +107,17 @@ public class OAuthClient {
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair(FIELD_GRANT_TYPE, this.grantType.name().toLowerCase()));
-        if (this.scopeType != null) {
-            params.add(new BasicNameValuePair(FIELD_SCOPE, this.scopeType.name().toLowerCase()));
-        }
-        params.add(new BasicNameValuePair(FIELD_CLIENT_ID, this.clientId));
-        params.add(new BasicNameValuePair(FIELD_CLIENT_SECRET, this.clientSecret));
 
         HttpUriRequest request = RequestBuilder.create("POST")
                 .setUri(this.tokenEndpoint)
-                //  .setHeader(HttpHeaders.AUTHORIZATION, "Basic " + com.dtolabs.rundeck.core.utils.Base64.encode(this.clientId + ":" + this.clientSecret))
+                .setHeader(HttpHeaders.AUTHORIZATION, "Basic " + com.dtolabs.rundeck.core.utils.Base64.encode(this.clientId + ":" + this.clientSecret))
                 .setHeader(HttpHeaders.ACCEPT, JSON_CONTENT_TYPE)
                 .setHeader(HttpHeaders.CONTENT_TYPE, FORM_CONTENT_TYPE)
                 .setEntity(new UrlEncodedFormEntity(params)).build();
 
         HttpResponse response = this.httpClient.execute(request);
 
-        if (response.getStatusLine().getStatusCode() == STATUS_SUCCESS) {
+        if(response.getStatusLine().getStatusCode() == STATUS_SUCCESS) {
             JsonNode data = jsonParser.readTree(EntityUtils.toString(response.getEntity()));
             this.accessToken = data.get(FIELD_ACCESS_TOKEN).asText();
         } else {
@@ -224,21 +213,6 @@ public class OAuthClient {
         this.grantType = grantType;
     }
 
-    /**
-     * Initialize the OAuth client with the specified grant type.
-     *
-     * @param grantType
-     * @param scopeType
-     */
-    public OAuthClient(GrantType grantType, ScopeType scopeType) {
-        this.httpClient = HttpClientBuilder.create()
-                .disableAuthCaching()
-                .disableAutomaticRetries()
-                .build();
-
-        this.grantType = grantType;
-        this.scopeType = scopeType;
-    }
 
     /**
      * Set the credentials to use with this client.

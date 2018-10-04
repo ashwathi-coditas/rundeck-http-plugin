@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
-@Ignore
+//@Ignore
 public class HttpWorkflowStepPluginTest {
     protected static final String REMOTE_URL = "/trigger";
     protected static final String BOGUS_URL = "/bogus";

@@ -15,7 +15,7 @@ import java.io.IOException;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-@Ignore
+//@Ignore
 public class OAuthClientTest {
     public static final String ACCESS_TOKEN_VALID = "1";
     public static final String ACCESS_TOKEN_EXPIRED = "2";
