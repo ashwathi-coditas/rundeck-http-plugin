@@ -328,10 +328,8 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
                         // Create a brand new client
                         log.trace("Creating new OAuth client with key " + clientKey);
                         if(options.get("token_url_authentication_required")!=null && options.get("token_url_authentication_required").toString().equals("no")) {
-                        	System.out.print("Inside token url");
                         	client = new OAuthClient_New(OAuthClient.GrantType.CLIENT_CREDENTIALS,OAuthClient_New.ScopeType.INTERNAL_SERVICES);
                         }else {
-                        	System.out.print("Inside else");
                         	client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS);
                         }
                         client.setCredentials(clientId, clientSecret);
