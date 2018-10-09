@@ -13,7 +13,7 @@ import com.dtolabs.rundeck.plugins.step.StepPlugin;
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder;
 import com.dtolabs.rundeck.plugins.util.PropertyBuilder;
 import edu.ohio.ais.rundeck.util.OAuthClient;
-import edu.ohio.ais.rundeck.util.OAuthClient_New;
+import edu.ohio.ais.rundeck.util.OAuthClient_Zest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -328,7 +328,7 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
                         // Create a brand new client
                         log.trace("Creating new OAuth client with key " + clientKey);
                         if(options.get("token_url_authentication_required")!=null && options.get("token_url_authentication_required").toString().equals("no")) {
-                        	client = new OAuthClient_New(OAuthClient.GrantType.CLIENT_CREDENTIALS,OAuthClient_New.ScopeType.INTERNAL_SERVICES);
+                        	client = new OAuthClient_Zest(OAuthClient.GrantType.CLIENT_CREDENTIALS,OAuthClient_Zest.ScopeType.INTERNAL_SERVICES);
                         }else {
                         	client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS);
                         }

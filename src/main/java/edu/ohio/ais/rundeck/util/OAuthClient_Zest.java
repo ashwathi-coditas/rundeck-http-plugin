@@ -18,15 +18,15 @@ import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class OAuthClient_New extends OAuthClient {
+public class OAuthClient_Zest extends OAuthClient {
 
-	protected static final Log log = LogFactory.getLog(OAuthClient_New.class);
+	protected static final Log log = LogFactory.getLog(OAuthClient_Zest.class);
 	public static final String FIELD_SCOPE = "scope";
 	public static final String FIELD_CLIENT_ID = "client_id";
 	public static final String FIELD_CLIENT_SECRET = "client_secret";
 	ScopeType scopeType;
 
-	public OAuthClient_New(GrantType grantType, ScopeType scopeType) {
+	public OAuthClient_Zest(GrantType grantType, ScopeType scopeType) {
 		super(grantType);
 		this.scopeType = scopeType;
 	}
