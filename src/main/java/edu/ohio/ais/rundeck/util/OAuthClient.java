@@ -23,11 +23,11 @@ import java.util.List;
 /**
  * Simple OAuth client to manage obtaining tokens and providing
  * them for HTTP requests.
- *
+ * <p>
  * Currently this only supports the CLIENT_CREDENTIALS grant type.
  */
 public class OAuthClient {
-    private static final Log log = LogFactory.getLog(OAuthClient.class);
+    protected static final Log log = LogFactory.getLog(OAuthClient.class);
 
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
@@ -35,12 +35,14 @@ public class OAuthClient {
     public static final String FIELD_GRANT_TYPE = "grant_type";
     public static final String FIELD_ACCESS_TOKEN = "access_token";
 
+
     public static final Integer STATUS_SUCCESS = 200;
     public static final Integer STATUS_AUTHORIZATION_REQUIRED = 401;
 
     public enum GrantType {
         CLIENT_CREDENTIALS
     }
+
 
     public static class OAuthException extends Exception {
         public OAuthException(String message) {
@@ -77,7 +79,7 @@ public class OAuthClient {
         try {
             JsonNode data = jsonParser.readTree(EntityUtils.toString(response.getEntity()));
 
-            if(!data.isArray()) {
+            if (!data.isArray()) {
                 if (data.has("error_description")) {
                     error += ": " + data.get("error_description").asText();
                 } else if (data.has("error")) {
@@ -95,7 +97,7 @@ public class OAuthClient {
     /**
      * Retrieve an access token with our client credentials.
      *
-     * @throws IOException         When the HTTP request fails for some reason.
+     * @throws IOException           When the HTTP request fails for some reason.
      * @throws HttpResponseException When a non 200 or 401 status code is returned.
      */
     void doTokenRequest() throws HttpResponseException, OAuthException, IOException {
@@ -132,16 +134,16 @@ public class OAuthClient {
      * the following:
      *
      * <code>
-     *     {
-     *         ...
-     *         "clientId": ${Client ID Value}
-     *         ...
-     *     }
+     * {
+     * ...
+     * "clientId": ${Client ID Value}
+     * ...
+     * }
      * </code>
      *
      * @throws HttpResponseException When a status code other than 200 of 401 is returned
      * @throws IOException
-     * @throws OAuthException When the Client ID on the token doesn't match our client ID.
+     * @throws OAuthException        When the Client ID on the token doesn't match our client ID.
      */
     void doTokenValidate() throws HttpResponseException, IOException, OAuthException {
         this.doTokenValidate(false);
@@ -159,7 +161,7 @@ public class OAuthClient {
      * @throws OAuthException
      */
     void doTokenValidate(Boolean newToken) throws HttpResponseException, IOException, OAuthException {
-        if(this.accessToken == null) {
+        if (this.accessToken == null) {
             this.doTokenRequest();
         } else {
             if (this.validateEndpoint != null) {
@@ -211,6 +213,7 @@ public class OAuthClient {
         this.grantType = grantType;
     }
 
+
     /**
      * Set the credentials to use with this client.
      *
@@ -255,13 +258,12 @@ public class OAuthClient {
      * is synchronous.
      *
      * @return The access token string.
-     *
      * @throws HttpResponseException If an HTTP status code we don't handle is returned.
      * @throws IOException
-     * @throws OAuthException If our token is not valid (or other OAuth protocol issues)
+     * @throws OAuthException        If our token is not valid (or other OAuth protocol issues)
      */
     public String getAccessToken() throws HttpResponseException, IOException, OAuthException {
-        if(this.accessToken == null) {
+        if (this.accessToken == null) {
             this.doTokenValidate();
         }
 

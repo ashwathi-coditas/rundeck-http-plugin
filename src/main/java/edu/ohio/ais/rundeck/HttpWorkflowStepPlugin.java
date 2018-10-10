@@ -13,6 +13,8 @@ import com.dtolabs.rundeck.plugins.step.StepPlugin;
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder;
 import com.dtolabs.rundeck.plugins.util.PropertyBuilder;
 import edu.ohio.ais.rundeck.util.OAuthClient;
+import edu.ohio.ais.rundeck.util.OAuthClient_Zest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
@@ -147,6 +149,13 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
                     .required(false)
                     .scope(PropertyScope.Project)
                     .build())
+                .property(PropertyBuilder.builder()
+                     .string("token_url_authentication_required")
+                     .title("Authorization type")
+                     .description("Will check if token_url_authentication is required or not")
+                     .required(false)
+                     .scope(PropertyScope.Project)
+                     .build())
                 .build();
     }
 
@@ -266,7 +275,6 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
     @Override
     public void executeStep(PluginStepContext pluginStepContext, Map<String, Object> options) throws StepException {
         String authHeader = null;
-
         // Parse out the options
         String remoteUrl = options.containsKey("remoteUrl") ? options.get("remoteUrl").toString() : null;
         String method = options.containsKey("method") ? options.get("method").toString() : null;
@@ -308,26 +316,29 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
             // Another thread may be trying to do the same thing.
             synchronized(HttpWorkflowStepPlugin.oauthClients) {
                 OAuthClient client;
-
-                if(HttpWorkflowStepPlugin.oauthClients.containsKey(clientKey)) {
-                    // Update the existing client with our options if it exists.
-                    // We do this so that changes to configuration will always
-                    // update clients on next run.
-                    log.trace("Found existing OAuth client with key " + clientKey);
-                    client = HttpWorkflowStepPlugin.oauthClients.get(clientKey);
-                    client.setCredentials(clientId, clientSecret);
-                    client.setValidateEndpoint(validateEndpoint);
-                } else {
-                    // Create a brand new client
-                    log.trace("Creating new OAuth client with key " + clientKey);
-                    client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS);
-                    client.setCredentials(clientId, clientSecret);
-                    client.setTokenEndpoint(tokenEndpoint);
-                    client.setValidateEndpoint(validateEndpoint);
-                }
+                	if(HttpWorkflowStepPlugin.oauthClients.containsKey(clientKey) ) {
+                        // Update the existing client with our options if it exists.
+                        // We do this so that changes to configuration will always
+                        // update clients on next run.
+                        log.trace("Found existing OAuth client with key " + clientKey);
+                        client = HttpWorkflowStepPlugin.oauthClients.get(clientKey);
+                        client.setCredentials(clientId, clientSecret);
+                        client.setValidateEndpoint(validateEndpoint);
+                    }else {
+                        // Create a brand new client
+                        log.trace("Creating new OAuth client with key " + clientKey);
+                        if(options.get("token_url_authentication_required")!=null && options.get("token_url_authentication_required").toString().equals("no")) {
+                        	client = new OAuthClient_Zest(OAuthClient.GrantType.CLIENT_CREDENTIALS,OAuthClient_Zest.ScopeType.INTERNAL_SERVICES);
+                        }else {
+                        	client = new OAuthClient(OAuthClient.GrantType.CLIENT_CREDENTIALS);
+                        }
+                        client.setCredentials(clientId, clientSecret);
+                        client.setTokenEndpoint(tokenEndpoint);
+                        client.setValidateEndpoint(validateEndpoint);
+                    }         	
 
                 // Grab the access token
-                try {
+               try {
                     log.trace("Attempting to fetch access token...");
                     accessToken = client.getAccessToken();
                 } catch(Exception ex) {
@@ -336,10 +347,8 @@ public class HttpWorkflowStepPlugin implements StepPlugin, Describable {
                     se.initCause(ex);
                     throw se;
                 }
-
                 HttpWorkflowStepPlugin.oauthClients.put(clientKey, client);
             }
-
             authHeader = "Bearer " + accessToken;
         }
 
